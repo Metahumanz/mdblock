@@ -5,188 +5,181 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Markdown 代码块生成器（单文件）</title>
 <style>
+:root{
+  --bg: #0f1724;
+  --panel: #0b1220;
+  --muted: #94a3b8;
+  --text: #e6eef8;
+  --accent: linear-gradient(90deg,#7c3aed,#06b6d4);
+  --glass: rgba(255,255,255,0.03);
+  --radius: 12px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Segoe UI Emoji", "Apple Color Emoji", "Arial";
+}
+
+@media (prefers-color-scheme: light) {
   :root{
-    --bg: #0f1724;
-    --panel: #0b1220;
-    --muted: #94a3b8;
-    --text: #e6eef8;
-    --accent: linear-gradient(90deg,#7c3aed,#06b6d4);
-    --glass: rgba(255,255,255,0.03);
-    --success: #10b981;
-    --danger: #ef4444;
-    --radius: 12px;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Segoe UI Emoji", "Apple Color Emoji", "Arial";
+    --bg: #f6f8fb;
+    --panel: #ffffff;
+    --muted: #475569;
+    --text: #0b1220;
+    --glass: rgba(2,6,23,0.03);
   }
+  body { color-scheme: light; }
+}
 
-  @media (prefers-color-scheme: light) {
-    :root{
-      --bg: #f6f8fb;
-      --panel: #ffffff;
-      --muted: #475569;
-      --text: #0b1220;
-      --glass: rgba(2,6,23,0.03);
-    }
-    body { color-scheme: light; }
-  }
+html,body{
+  height:100%;
+  margin:0;
+  background: radial-gradient(1000px 400px at 10% 10%, rgba(99,102,241,0.08), transparent),
+              radial-gradient(800px 300px at 90% 90%, rgba(6,182,212,0.06), transparent),
+              var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
 
-  html,body{
-    height:100%;
-    margin:0;
-    background: radial-gradient(1000px 400px at 10% 10%, rgba(99,102,241,0.08), transparent),
-                radial-gradient(800px 300px at 90% 90%, rgba(6,182,212,0.06), transparent),
-                var(--bg);
-    color:var(--text);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-  }
+.wrap{
+  max-width:1100px;
+  margin:32px auto;
+  padding:24px;
+}
 
-  .wrap{
-    max-width:1100px;
-    margin:32px auto;
-    padding:24px;
-  }
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow: 0 6px 24px rgba(2,6,23,0.3);
+  border: 1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(6px);
+}
 
-  .card{
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-    border-radius:var(--radius);
-    padding:18px;
-    box-shadow: 0 6px 24px rgba(2,6,23,0.3);
-    border: 1px solid rgba(255,255,255,0.03);
-    backdrop-filter: blur(6px);
-  }
+.header{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
 
-  .header{
-    display:flex;
-    gap:12px;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:12px;
-  }
+.title{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
 
-  .title{
-    display:flex;
-    gap:12px;
-    align-items:center;
-  }
+.logo{
+  width:48px;height:48px;border-radius:10px;
+  background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:white;font-size:18px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.4);
+}
 
-  .logo{
-    width:48px;height:48px;border-radius:10px;
-    background:var(--accent);
-    display:flex;align-items:center;justify-content:center;
-    font-weight:700;color:white;font-size:18px;
-    box-shadow: 0 6px 18px rgba(2,6,23,0.4);
-  }
+h1{ margin:0;font-size:18px;letter-spacing:-0.2px; }
+p.lead{ margin:0;color:var(--muted); font-size:13px; }
 
-  h1{ margin:0;font-size:18px;letter-spacing:-0.2px; }
-  p.lead{ margin:0;color:var(--muted); font-size:13px; }
+.controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
 
-  .controls{
-    display:flex;
-    gap:8px;
-    align-items:center;
-  }
+select,input[type="checkbox"],button{
+  font-family:inherit;
+  font-size:13px;
+  border-radius:8px;
+  padding:8px 12px;
+  border:1px solid rgba(0,0,0,0.08);
+  background:transparent;
+  color:var(--text);
+}
 
-  select,input[type="checkbox"],button{
-    font-family:inherit;
-    font-size:13px;
-    border-radius:8px;
-    padding:8px 12px;
-    border:1px solid rgba(0,0,0,0.08);
-    background:transparent;
-    color:var(--text);
-  }
+select, .lang-select {
+  font-family: inherit;
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background-color: var(--panel);
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+select::-ms-expand { display: none; }
 
-  select, .lang-select {
-    font-family: inherit;
-    font-size: 13px;
-    border-radius: 8px;
-    padding: 8px 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background-color: var(--panel);
-    color: var(--text);
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-  }
-  select::-ms-expand { display: none; }
+.row{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:14px;
+  margin-top:14px;
+}
 
-  .row{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:14px;
-    margin-top:14px;
-  }
+@media (max-width:880px){
+  .row{ grid-template-columns: 1fr; }
+}
 
-  @media (max-width:880px){
-    .row{ grid-template-columns: 1fr; }
-  }
+.pane{
+  display:flex;flex-direction:column;height:420px;
+  border-radius:12px;padding:12px;
+  background:var(--panel);
+  border:1px solid rgba(255,255,255,0.02);
+  overflow:hidden;
+}
 
-  .pane{
-    display:flex;flex-direction:column;height:420px;
-    border-radius:12px;padding:12px;
-    background:var(--panel);
-    border:1px solid rgba(255,255,255,0.02);
-    overflow:hidden;
-  }
+label.small{ font-size:12px;color:var(--muted); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
 
-  label.small{ font-size:12px;color:var(--muted); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+textarea.input{
+  flex:1;
+  resize:none;
+  border-radius:8px;
+  border:1px dashed rgba(255,255,255,0.03);
+  padding:12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Noto Mono", monospace;
+  font-size:13px;
+  line-height:1.5;
+  color:var(--text);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  outline:none;
+}
 
-  .input-wrapper{
-    display:flex; gap:8px; align-items:center;
-    margin-bottom:6px;
-  }
+.btn{
+  background:var(--accent);
+  color:white;border:0;padding:8px 12px;border-radius:10px;
+  cursor:pointer;font-weight:600;
+  box-shadow: 0 8px 24px rgba(99,102,241,0.12);
+}
+.btn.ghost{
+  background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text);
+}
 
-  textarea.input{
-    flex:1;
-    resize:none;
-    border-radius:8px;
-    border:1px dashed rgba(255,255,255,0.03);
-    padding:12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Noto Mono", monospace;
-    font-size:13px;
-    line-height:1.5;
-    color:var(--text);
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
-    outline:none;
-  }
+pre.output{
+  flex:1;
+  margin:0;
+  padding:12px;
+  border-radius:8px;
+  overflow:auto;
+  background: linear-gradient(180deg, rgba(0,0,0,0.12), transparent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Noto Mono", monospace;
+  font-size:13px;
+  line-height:1.45;
+  color:var(--text);
+  white-space:pre-wrap;
+  word-break:break-word;
+  border:1px dashed rgba(255,255,255,0.03);
+}
 
-  .btn{
-    background:var(--accent);
-    color:white;border:0;padding:8px 12px;border-radius:10px;
-    cursor:pointer;font-weight:600;
-    box-shadow: 0 8px 24px rgba(99,102,241,0.12);
-  }
-  .btn.ghost{
-    background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text);
-  }
+.hint{ font-size:12px;color:var(--muted);margin-top:4px; }
 
-  pre.output{
-    flex:1;
-    margin:0;
-    padding:12px;
-    border-radius:8px;
-    overflow:auto;
-    background: linear-gradient(180deg, rgba(0,0,0,0.12), transparent);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Noto Mono", monospace;
-    font-size:13px;
-    line-height:1.45;
-    color:var(--text);
-    white-space:pre-wrap;
-    word-break:break-word;
-    border:1px dashed rgba(255,255,255,0.03);
-  }
+.smalltxt{ font-size:12px;color:var(--muted);margin-left:6px; }
+.status{
+  font-size:13px;padding:8px 10px;border-radius:10px;
+}
 
-  .hint{ font-size:12px;color:var(--muted);margin-top:4px; }
-
-  .smalltxt{ font-size:12px;color:var(--muted);margin-left:6px; }
-  .status{
-    font-size:13px;padding:8px 10px;border-radius:10px;
-  }
-
-  @media (max-width:520px){
-    .wrap{ padding:14px; margin:12px; }
-    .card{ padding:12px; }
-  }
+@media (max-width:520px){
+  .wrap{ padding:14px; margin:12px; }
+  .card{ padding:12px; }
+}
 </style>
 </head>
 <body>
@@ -230,21 +223,17 @@
     <div class="row">
       <div class="pane" style="min-height:360px;">
         <label class="small">输入代码（粘贴或键入）<span class="smalltxt">（页面初次加载时为空）</span></label>
-        <div class="input-wrapper">
-          <textarea id="input" class="input" placeholder="在此粘贴或输入你的代码..."></textarea>
-          <button id="pasteBtn" class="btn">粘贴</button>
-        </div>
-        <div class="hint">输入后输出区会立即更新。点击“粘贴”可从剪贴板获取代码。</div>
+        <textarea id="input" class="input" placeholder="在此粘贴或输入你的代码..."></textarea>
+        <div class="hint">输入后输出区会立即更新。</div>
       </div>
 
       <div class="pane" style="min-height:360px;">
-        <label class="small">生成的 Markdown 代码块
-          <div style="display:flex;gap:8px;align-items:center;">
-            <button id="copyBtn" class="btn">复制</button>
-            <button id="clearBtn" class="btn ghost" title="清空输入输出">清空</button>
-          </div>
-        </label>
-
+        <label class="small">生成的 Markdown 代码块</label>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <button id="pasteBtn" class="btn">粘贴</button>
+          <button id="copyBtn" class="btn">复制</button>
+          <button id="clearBtn" class="btn ghost" title="清空输入输出">清空</button>
+        </div>
         <pre id="output" class="output" aria-live="polite" readonly></pre>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
@@ -301,7 +290,10 @@
     statusEl.textContent = md ? '已生成，可复制' : '等待输入…';
   }
 
-  inputEl.addEventListener('input', update);
+  inputEl.addEventListener('input', ()=>{
+    update();
+    autoResize();
+  });
   langSel.addEventListener('change', update);
 
   copyBtn.addEventListener('click', async ()=>{
@@ -316,18 +308,7 @@
       statusEl.textContent = '已复制到剪贴板 ✔';
       setTimeout(()=> statusEl.textContent = '已生成，可复制', 1500);
     }catch(e){
-      try{
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        statusEl.textContent = '已复制到剪贴板 ✔';
-        setTimeout(()=> statusEl.textContent = '已生成，可复制', 1500);
-      }catch(err){
-        statusEl.textContent = '复制失败，请手动复制';
-      }
+      statusEl.textContent = '复制失败，请手动复制';
     }
   });
 
@@ -340,13 +321,27 @@
   pasteBtn.addEventListener('click', async ()=>{
     try{
       const text = await navigator.clipboard.readText();
-      inputEl.value += text;
+      const start = inputEl.selectionStart || 0;
+      const end = inputEl.selectionEnd || 0;
+      const before = inputEl.value.slice(0, start);
+      const after = inputEl.value.slice(end);
+      inputEl.value = before + text + after;
+      inputEl.setSelectionRange(start + text.length, start + text.length);
+      inputEl.focus();
       update();
+      autoResize();
     }catch(e){
       statusEl.textContent = '粘贴失败，请手动粘贴';
       setTimeout(()=> statusEl.textContent = inputEl.value ? '已生成，可复制' : '等待输入…', 1500);
     }
   });
+
+  function autoResize(){
+    inputEl.style.height = '120px';
+    const h = Math.min(Math.max(inputEl.scrollHeight, 120), 800);
+    inputEl.style.height = h + 'px';
+  }
+  autoResize();
 
   document.addEventListener('keydown', (e)=>{
     if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
@@ -355,34 +350,6 @@
     }
   });
 
-  update();
-
-  function autoResize(){
-    inputEl.style.height = '120px';
-    const h = Math.min(Math.max(inputEl.scrollHeight, 120), 800);
-    inputEl.style.height = h + 'px';
-  }
-  inputEl.addEventListener('input', autoResize);
-  autoResize();
-
-  inputEl.addEventListener('paste', (ev)=>{
-    const clipboard = (ev.clipboardData || window.clipboardData).getData('text') || '';
-    if(/^\s*```/.test(clipboard) && /```\s*$/.test(clipboard)){
-      const stripped = clipboard.replace(/^\s*```[^\n]*\n?/, '').replace(/\n?```\s*$/, '');
-      ev.preventDefault();
-      const start = inputEl.selectionStart;
-      const end = inputEl.selectionEnd;
-      const before = inputEl.value.slice(0, start);
-      const after = inputEl.value.slice(end);
-      inputEl.value = before + stripped + after;
-      const pos = start + stripped.length;
-      inputEl.setSelectionRange(pos, pos);
-      update();
-      autoResize();
-      statusEl.textContent = '已去除外部代码围栏。';
-      setTimeout(()=> statusEl.textContent = inputEl.value ? '已生成，可复制' : '等待输入…', 1400);
-    }
-  });
 })();
 </script>
 </body>
