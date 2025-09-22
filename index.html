@@ -96,6 +96,21 @@
     color:var(--text);
   }
 
+  /* 修改后的下拉框样式，深色模式下可读 */
+  select, .lang-select {
+    font-family: inherit;
+    font-size: 13px;
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background-color: var(--panel);
+    color: var(--text);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+  select::-ms-expand { display: none; } /* IE */
+
   .row{
     display:grid;
     grid-template-columns: 1fr 1fr;
@@ -168,7 +183,6 @@
 
   .lang-select{ min-width:160px; }
 
-  /* little responsive tweaks */
   @media (max-width:520px){
     .wrap{ padding:14px; margin:12px; }
     .card{ padding:12px; }
@@ -194,7 +208,6 @@
           <option value="dark">深色</option>
         </select>
         <select id="lang" class="lang-select" title="选择代码块语言">
-          <!-- 常用语言选项（可扩展） -->
           <option value="cpp" selected>C++ (cpp)</option>
           <option value="c">C (c)</option>
           <option value="python">Python (python)</option>
@@ -251,13 +264,9 @@
   const statusEl = document.getElementById('status');
   const themeToggle = document.getElementById('themeToggle');
 
-  // 初始化：页面加载时输入框为空（已在 DOM 中设为 empty）
-  // 根据系统主题设置下拉默认值为 auto
-  // 监听主题选择
   function applyTheme(mode){
     if(mode === 'auto'){
       document.documentElement.style.colorScheme = '';
-      // rely on prefers-color-scheme css
     } else if(mode === 'light'){
       document.documentElement.style.setProperty('--bg', '#f6f8fb');
       document.documentElement.style.setProperty('--panel', '#ffffff');
@@ -273,15 +282,8 @@
   themeToggle.addEventListener('change', (e)=> applyTheme(e.target.value));
   applyTheme(themeToggle.value);
 
-  // 生成 markdown 代码块
   function makeMarkdownBlock(code, lang){
-    // Ensure triple backticks are plain text; we will wrap with ```lang\n ... \n```
-    // If user code itself contains leading/trailing newlines, keep them.
-    // If code contains only whitespace, treat as empty.
-    if(!code || !code.trim()){
-      return '';
-    }
-    // Normalize line endings to \n
+    if(!code || !code.trim()){ return ''; }
     const normalized = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     return "```" + (lang || '') + "\n" + normalized + "\n```";
   }
@@ -292,22 +294,15 @@
     langLabel.textContent = lang;
     const md = makeMarkdownBlock(code, lang);
     outputEl.textContent = md;
-    if(md){
-      statusEl.textContent = '已生成，可复制';
-    } else {
-      statusEl.textContent = '等待输入…';
-    }
+    statusEl.textContent = md ? '已生成，可复制' : '等待输入…';
   }
 
-  // Immediate update when typing/pasting
   inputEl.addEventListener('input', update);
   langSel.addEventListener('change', update);
 
-  // Copy to clipboard, including backticks
   copyBtn.addEventListener('click', async ()=>{
     const text = outputEl.textContent || '';
     if(!text){
-      // flash status
       statusEl.textContent = '没有内容可复制';
       setTimeout(()=> statusEl.textContent = inputEl.value ? '已生成，可复制' : '等待输入…', 900);
       return;
@@ -317,7 +312,6 @@
       statusEl.textContent = '已复制到剪贴板 ✔';
       setTimeout(()=> statusEl.textContent = '已生成，可复制', 1500);
     }catch(e){
-      // fallback: select + execCommand
       try{
         const ta = document.createElement('textarea');
         ta.value = text;
@@ -339,7 +333,6 @@
     inputEl.focus();
   });
 
-  // Accessibility: allow Ctrl/Cmd+Enter to copy quickly
   document.addEventListener('keydown', (e)=>{
     if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
       e.preventDefault();
@@ -347,10 +340,8 @@
     }
   });
 
-  // Initially ensure output empty (because input empty)
   update();
 
-  // UX: auto-resize textarea height a bit
   function autoResize(){
     inputEl.style.height = '120px';
     const h = Math.min(Math.max(inputEl.scrollHeight, 120), 800);
@@ -359,16 +350,11 @@
   inputEl.addEventListener('input', autoResize);
   autoResize();
 
-  // Provide a tiny tip when user pastes code with leading/trailing backticks:
   inputEl.addEventListener('paste', (ev)=>{
-    // small heuristic: if pasted text already looks like a code fence, remove its outer fences automatically
     const clipboard = (ev.clipboardData || window.clipboardData).getData('text') || '';
     if(/^\s*```/.test(clipboard) && /```\s*$/.test(clipboard)){
-      // strip the outer fence
       const stripped = clipboard.replace(/^\s*```[^\n]*\n?/, '').replace(/\n?```\s*$/, '');
-      // let the paste proceed but replace content
       ev.preventDefault();
-      // insert stripped content at cursor
       const start = inputEl.selectionStart;
       const end = inputEl.selectionEnd;
       const before = inputEl.value.slice(0, start);
